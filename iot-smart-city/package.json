@@ -1,0 +1,10 @@
+{
+  "name": "anonymized-iot-replay",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --no-warnings server/server.mjs"
+  }
+}
+
