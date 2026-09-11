@@ -29,7 +29,7 @@ DEPLOY_DIR="$PAGE_DIR/deployment"
 mkdir -p "$DEPLOY_DIR"
 
 IOT_SOURCE_DIR="${IOT_SOURCE_DIR:-"$PAGE_DIR"}"
-PACKAGE_PATH="$DEPLOY_DIR/iot_app_package.tar.gz"
+PACKAGE_PATH="${PACKAGE_PATH:-"$DEPLOY_DIR/iot_app_package.tar.gz"}"
 
 echo "============================================================"
 echo "Smart City IoT AWS Lab - Step 3: Package local app"
@@ -69,10 +69,14 @@ echo
 
 echo "Creating compressed package..."
 rm -f "$PACKAGE_PATH"
+# The package is written into ../deployment, which lives inside the source tree.
+# Excluding that folder keeps tar from reading the archive it is still writing,
+# which would abort the script with "file changed as we read it".
 tar \
   --exclude='.git' \
   --exclude='node_modules' \
   --exclude='.venv' \
+  --exclude='./deployment' \
   --exclude='data/*.pid' \
   --exclude='data/*.url' \
   --exclude='data/*.sqlite-wal' \

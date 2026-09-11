@@ -116,7 +116,6 @@ Only stop instead of terminate if your lecturer explicitly asks you to keep the 
 ```bash
 ./06_cleanup_iot_ec2.sh stop
 ```
-```
 
 ### 4. Open and inspect the Ubuntu EC2 configuration
 
@@ -182,7 +181,11 @@ data/*.url
 scripts/__pycache__/
 node_modules/
 *.log
+deployment/
 ```
+
+The `deployment/` folder holds the generated EC2 private key and the app
+package, so it stays out of Git. Never commit the `.pem` key file.
 
 ## Repository structure
 
@@ -276,7 +279,21 @@ This packages the cloned website and included SQLite database into:
 ../deployment/iot_app_package.tar.gz
 ```
 
-It does not create or change AWS resources.
+It does not create or change AWS resources. The `deployment` folder is excluded
+from the archive, so the package never contains the archive file itself.
+
+Change the output path only if you need to, for example when you want the
+package outside the source tree:
+
+```bash
+PACKAGE_PATH="/tmp/iot_app_package.tar.gz" ./03_package_iot_app.sh
+```
+
+If you set `PACKAGE_PATH`, pass the same value to step 4:
+
+```bash
+PACKAGE_PATH="/tmp/iot_app_package.tar.gz" ./04_upload_and_install_iot_app.sh
+```
 
 ### `04_upload_and_install_iot_app.sh`
 

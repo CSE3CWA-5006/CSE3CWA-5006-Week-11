@@ -61,13 +61,22 @@ echo
 
 echo "Testing public bootstrap endpoint."
 echo "Only the first 800 characters are shown because the response can be large."
-curl -fsS "http://$PUBLIC_IP/api/bootstrap" | head -c 800
+# Save the response first instead of piping it into head. Piping a large
+# response into head closes the pipe early, which makes curl exit with
+# "curl: (23) Failure writing output" and stops the script under pipefail.
+BOOTSTRAP_FILE="${TMPDIR:-/tmp}/iot_bootstrap.json"
+curl -fsS "http://$PUBLIC_IP/api/bootstrap" -o "$BOOTSTRAP_FILE"
+head -c 800 "$BOOTSTRAP_FILE"
 echo
 echo
 
 echo "Testing Server-Sent Events stream for a few seconds."
 echo "If you see event: init or event: tick, the live stream route is working."
-timeout 6 curl -fsS -N "http://$PUBLIC_IP/api/stream?speed=3600&maxRows=5" | head -n 20 || true
+# timeout ends the stream on purpose, so that exit status is expected and is
+# not treated as a deployment failure.
+STREAM_FILE="${TMPDIR:-/tmp}/iot_stream.txt"
+timeout 6 curl -fsS -N "http://$PUBLIC_IP/api/stream?speed=3600&maxRows=5" -o "$STREAM_FILE" || true
+head -n 20 "$STREAM_FILE" || true
 echo
 
 if [ -f "$KEY_FILE" ]; then

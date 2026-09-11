@@ -6,3 +6,7 @@ data/chrome-profile*/
 *.log
 .DS_Store
 node_modules/
+
+# Local deployment output: the EC2 private key and the app package.
+# These must never be committed.
+deployment/
