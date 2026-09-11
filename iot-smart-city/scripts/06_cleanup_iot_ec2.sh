@@ -41,9 +41,26 @@ echo "Instance ID: $INSTANCE_ID"
 echo "Action     : $ACTION"
 echo
 
+# The instance may already be gone, for example when the lab was cleaned up
+# twice or the instance was terminated from the AWS Console. Check the state
+# first so the script reports that clearly instead of failing with a raw
+# quoteless JMESPath error such as "list index out of range".
+INSTANCE_STATE="$(aws ec2 describe-instances \
+  --instance-ids "$INSTANCE_ID" \
+  --query 'Reservations[0].Instances[0].State.Name' \
+  --output text 2>/dev/null || true)"
+
+if [ -z "$INSTANCE_STATE" ] || [ "$INSTANCE_STATE" = "None" ]; then
+  echo "Instance $INSTANCE_ID was not found in ${AWS_DEFAULT_REGION}."
+  echo "It may already be terminated. Nothing to clean up."
+  exit 0
+fi
+
+# Select the Name tag as a single value. Asking for the whole Tags list makes
+# the table formatter fail with "aws: [ERROR]: list index out of range".
 aws ec2 describe-instances \
   --instance-ids "$INSTANCE_ID" \
-  --query 'Reservations[0].Instances[0].[InstanceId,State.Name,PublicIpAddress,Tags]' \
+  --query "Reservations[0].Instances[0].[InstanceId,State.Name,PublicIpAddress,Tags[?Key=='Name'].Value|[0]]" \
   --output table
 echo
 
