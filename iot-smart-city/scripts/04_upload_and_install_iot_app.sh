@@ -72,11 +72,27 @@ if [ ! -f "$KEY_FILE" ]; then
   echo
   echo "Set KEY_FILE to the local path of your .pem file."
   echo "Example:"
-  echo "  KEY_FILE=\"/mnt/c/Users/YourName/Downloads/week11-key.pem\" ./04_upload_and_install_iot_app.sh"
+  echo "  KEY_FILE=\"/mnt/e/trycli/verified_cli/deployment/week11-verified-sunlit.pem\" ./04_upload_and_install_iot_app.sh"
   exit 1
 fi
 
 chmod 400 "$KEY_FILE" || true
+
+echo "Waiting for SSH to become ready..."
+SSH_READY=0
+for attempt in $(seq 1 30); do
+  if ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=8 -i "$KEY_FILE" "$SSH_USER@$PUBLIC_IP" "echo ssh-ready" >/dev/null 2>&1; then
+    SSH_READY=1
+    break
+  fi
+  echo "SSH is not ready yet. Retry $attempt/30..."
+  sleep 10
+done
+if [ "$SSH_READY" -ne 1 ]; then
+  echo "ERROR: SSH did not become ready after 5 minutes."
+  echo "Check KEY_FILE, KEY_NAME, public IP and security group port 22."
+  exit 1
+fi
 
 echo "Uploading package to EC2 with scp..."
 scp -o StrictHostKeyChecking=accept-new -i "$KEY_FILE" "$PACKAGE_PATH" "$SSH_USER@$PUBLIC_IP:/tmp/iot_app_package.tar.gz"
@@ -109,8 +125,10 @@ echo
 echo "Updating Ubuntu package index..."
 sudo apt-get update
 
-echo "Installing base packages: curl, nginx, sqlite3, Python and build helpers..."
-sudo apt-get install -y ca-certificates curl gnupg tar gzip nginx python3 python3-venv python3-pip sqlite3 libsqlite3-dev
+export DEBIAN_FRONTEND=noninteractive
+
+echo "Installing base packages: curl, nginx and sqlite3..."
+sudo apt-get install -y ca-certificates curl gnupg tar gzip nginx sqlite3
 
 NODE_MAJOR="$(node -p "Number(process.versions.node.split('.')[0])" 2>/dev/null || echo 0)"
 if [ "$NODE_MAJOR" -lt 24 ]; then

@@ -26,7 +26,7 @@ fi
 source "$ENV_FILE"
 
 ACTION="${1:-stop}"
-export AWS_PROFILE="${AWS_PROFILE:-academy}"
+export AWS_PROFILE="${AWS_PROFILE:-sunlit}"
 export AWS_DEFAULT_REGION="${REGION:-${AWS_DEFAULT_REGION:-ap-southeast-2}}"
 
 echo "============================================================"
@@ -67,4 +67,3 @@ esac
 echo
 echo "Cleanup command sent."
 echo "Check the AWS Console or run ./01_cli_login_check.sh to confirm the new state."
-

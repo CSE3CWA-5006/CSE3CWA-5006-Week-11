@@ -41,7 +41,7 @@ if [ ! -d "$IOT_SOURCE_DIR" ]; then
   echo
   echo "Set IOT_SOURCE_DIR manually if your project is somewhere else."
   echo "Example:"
-  echo "  IOT_SOURCE_DIR=\"/mnt/e/LMS/MyLMS/week11/IoT\" ./03_package_iot_app.sh"
+  echo "  IOT_SOURCE_DIR=\"/mnt/e/trycli/IoT\" ./03_package_iot_app.sh"
   exit 1
 fi
 
@@ -83,5 +83,4 @@ echo "Package created:"
 ls -lh "$PACKAGE_PATH"
 echo
 echo "Next step:"
-echo "  KEY_FILE=\"/path/to/your-key.pem\" ./04_upload_and_install_iot_app.sh"
-
+echo "  KEY_FILE=\"/mnt/e/trycli/verified_cli/deployment/week11-verified-sunlit.pem\" ./04_upload_and_install_iot_app.sh"

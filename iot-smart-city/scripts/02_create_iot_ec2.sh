@@ -17,13 +17,13 @@ PAGE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 DEPLOY_DIR="$PAGE_DIR/deployment"
 mkdir -p "$DEPLOY_DIR"
 
-PROFILE="${AWS_PROFILE:-academy}"
+PROFILE="${AWS_PROFILE:-sunlit}"
 REGION="${AWS_REGION:-${AWS_DEFAULT_REGION:-ap-southeast-2}}"
 PROJECT="${PROJECT:-week11-smart-city-iot}"
 OWNER="${OWNER:-student-id}"
 INSTANCE_TYPE="${INSTANCE_TYPE:-t3.micro}"
 KEY_NAME="${KEY_NAME:-}"
-SSH_CIDR="${SSH_CIDR:-0.0.0.0/0}"
+SSH_CIDR="${SSH_CIDR:-}"
 HTTP_CIDR="${HTTP_CIDR:-0.0.0.0/0}"
 
 export AWS_PROFILE="$PROFILE"
@@ -53,6 +53,24 @@ fi
 
 echo "Checking AWS identity before creating anything..."
 aws sts get-caller-identity --output table
+echo
+
+echo "Checking whether the selected instance type is Free Tier eligible in this Region..."
+FREE_TIER_MATCH="$(aws ec2 describe-instance-types \
+  --instance-types "$INSTANCE_TYPE" \
+  --filters Name=free-tier-eligible,Values=true \
+  --query 'InstanceTypes[0].InstanceType' \
+  --output text 2>/dev/null || true)"
+if [ "$FREE_TIER_MATCH" != "$INSTANCE_TYPE" ]; then
+  echo "ERROR: $INSTANCE_TYPE is not Free Tier eligible in $REGION for this project."
+  echo "Choose one from:"
+  aws ec2 describe-instance-types \
+    --filters Name=free-tier-eligible,Values=true \
+    --query 'InstanceTypes[*].InstanceType' \
+    --output table
+  exit 1
+fi
+echo "$INSTANCE_TYPE is Free Tier eligible."
 echo
 
 echo "Checking that the EC2 key pair exists in this Region..."
@@ -87,6 +105,21 @@ if [ "$SUBNET_ID" = "None" ] || [ -z "$SUBNET_ID" ]; then
   exit 1
 fi
 echo "Subnet: $SUBNET_ID"
+echo
+
+if [ -z "$SSH_CIDR" ]; then
+  CURRENT_IP="$(curl -fsS https://checkip.amazonaws.com 2>/dev/null | tr -d '\r\n' || true)"
+  if [ -n "$CURRENT_IP" ]; then
+    SSH_CIDR="${CURRENT_IP}/32"
+  else
+    echo "ERROR: Could not detect current public IP for SSH_CIDR."
+    echo "Set SSH_CIDR manually, for example:"
+    echo "  SSH_CIDR=\"203.0.113.10/32\" KEY_NAME=\"$KEY_NAME\" ./02_create_iot_ec2.sh"
+    exit 1
+  fi
+fi
+echo "SSH CIDR: $SSH_CIDR"
+echo "HTTP CIDR: $HTTP_CIDR"
 echo
 
 echo "Creating or reusing a security group..."
@@ -155,6 +188,7 @@ INSTANCE_ID="$(aws ec2 run-instances \
   --instance-type "$INSTANCE_TYPE" \
   --key-name "$KEY_NAME" \
   --network-interfaces "DeviceIndex=0,SubnetId=${SUBNET_ID},Groups=[${SG_ID}],AssociatePublicIpAddress=true" \
+  --metadata-options "HttpTokens=required,HttpEndpoint=enabled" \
   --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=${PROJECT}},{Key=Project,Value=week11},{Key=Owner,Value=${OWNER}},{Key=Purpose,Value=iot-lab},{Key=AutoCleanup,Value=true}]" \
   --query 'Instances[0].InstanceId' \
   --output text)"
@@ -162,10 +196,6 @@ INSTANCE_ID="$(aws ec2 run-instances \
 echo "Instance created: $INSTANCE_ID"
 echo "Waiting until the instance is running..."
 aws ec2 wait instance-running --instance-ids "$INSTANCE_ID"
-
-echo "Waiting until EC2 status checks pass."
-echo "This can take a few minutes. It makes SSH installation more reliable."
-aws ec2 wait instance-status-ok --instance-ids "$INSTANCE_ID"
 
 echo "Fetching public IP address..."
 PUBLIC_IP="$(aws ec2 describe-instances \
@@ -198,6 +228,8 @@ echo "Public IP: $PUBLIC_IP"
 echo "Website URL after app installation: http://$PUBLIC_IP/"
 echo "Saved deployment information to:"
 echo "  $ENV_FILE"
+echo
+echo "The upload script will wait for SSH before it installs the app."
 echo
 echo "Next step:"
 echo "  ./03_package_iot_app.sh"

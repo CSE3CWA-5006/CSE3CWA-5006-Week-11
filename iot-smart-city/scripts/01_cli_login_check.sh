@@ -5,9 +5,9 @@ set -Eeuo pipefail
 # Step 1: Check AWS CLI login and basic account context.
 #
 # This script does not create, change, stop, or delete any AWS resource.
-# It only checks that the AWS CLI can talk to the correct AWS Academy account.
+# It only checks that the AWS CLI can talk to the selected AWS project.
 
-PROFILE="${AWS_PROFILE:-academy}"
+PROFILE="${AWS_PROFILE:-sunlit}"
 REGION="${AWS_REGION:-${AWS_DEFAULT_REGION:-ap-southeast-2}}"
 
 export AWS_PROFILE="$PROFILE"
@@ -32,18 +32,10 @@ echo "AWS CLI version:"
 aws --version
 echo
 
-echo "If this is your first time using the AWS Academy CLI credentials,"
-echo "copy your temporary credentials from the AWS Academy lab page."
-echo "Then run commands like these. Do not share these values with anyone:"
-echo
-cat <<'COMMANDS'
-aws configure set aws_access_key_id "PASTE_ACCESS_KEY_ID_HERE" --profile academy
-aws configure set aws_secret_access_key "PASTE_SECRET_ACCESS_KEY_HERE" --profile academy
-aws configure set aws_session_token "PASTE_SESSION_TOKEN_HERE" --profile academy
-aws configure set region ap-southeast-2 --profile academy
-aws configure set output json --profile academy
-export AWS_PROFILE=academy
-COMMANDS
+echo "Assumption: the user has already logged in with AWS CLI."
+echo "For this verified lab package, the expected profile is: $PROFILE"
+echo "If the login has expired, renew it with:"
+echo "  aws login --region $REGION --profile $PROFILE"
 echo
 
 echo "Checking who the CLI is logged in as..."
@@ -51,10 +43,9 @@ if ! aws sts get-caller-identity --output table; then
   echo
   echo "ERROR: AWS CLI identity check failed."
   echo "Common causes:"
-  echo "  1. The AWS Academy lab has not started."
-  echo "  2. The temporary credentials were copied incorrectly."
-  echo "  3. The session token is missing."
-  echo "  4. The temporary credentials have expired."
+  echo "  1. The AWS CLI profile has not been logged in."
+  echo "  2. The browser sign-in session was not completed."
+  echo "  3. The temporary CLI credentials have expired."
   exit 1
 fi
 echo
@@ -74,5 +65,4 @@ aws ec2 describe-instances \
 echo
 echo "Step 1 complete."
 echo "If the identity table looked correct, continue with:"
-echo "  KEY_NAME=\"your-ec2-key-pair-name\" OWNER=\"your-student-id\" ./02_create_iot_ec2.sh"
-
+echo "  AWS_PROFILE=\"sunlit\" KEY_NAME=\"week11-verified-sunlit\" OWNER=\"student-12345678\" ./02_create_iot_ec2.sh"
