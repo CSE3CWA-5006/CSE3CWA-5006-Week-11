@@ -569,6 +569,20 @@ School networks, browser cache misses, or cross-region CDN latency can make the 
 
 For a production or fully offline teaching package, bundle these dependencies locally instead of loading them from CDNs.
 
+The map basemap is also loaded from the Internet:
+
+```text
+https://tile.openstreetmap.org/{z}/{x}/{y}.png
+```
+
+OpenStreetMap tiles need no API key, which is why this project uses them instead
+of the CARTO basemap used earlier, which now answers with an "API key required"
+placeholder. The dark look of the old basemap is recreated with a CSS filter on
+the Leaflet tile pane, so the page still looks the same. Keep the OpenStreetMap
+attribution visible: it is required by their tile usage policy. That policy is
+meant for modest teaching traffic, so a public or high-traffic deployment should
+move to a host with an API key and a service agreement.
+
 ## Troubleshooting
 
 ### `aws sts get-caller-identity` fails

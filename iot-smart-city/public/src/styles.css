@@ -342,6 +342,13 @@ button {
   background: #101312;
 }
 
+/* The OpenStreetMap basemap is light, and this UI is dark. Inverting the tile
+   pane keeps the dark look without needing a key-protected basemap. Only tiles
+   are inverted: markers, labels, tooltips and controls live in other panes. */
+.leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.94) contrast(0.92);
+}
+
 .leaflet-control-zoom {
   border: 1px solid var(--line) !important;
   border-radius: 8px !important;

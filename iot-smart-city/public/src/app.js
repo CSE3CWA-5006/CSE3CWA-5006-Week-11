@@ -568,9 +568,13 @@ function StreetMapPanel({
       attributionControl: true,
     }).setView(center, 12);
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    // OpenStreetMap standard tiles are free and need no API key, unlike the
+    // CARTO basemap that was used before. The dark look of the old basemap is
+    // reproduced with a CSS filter on the tile pane, see .leaflet-tile-pane in
+    // styles.css. Keep the OSM attribution: it is required by their tile policy.
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
-      attribution: "&copy; OpenStreetMap &copy; CARTO",
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
     L.control.zoom({ position: "topleft" }).addTo(map);
 
