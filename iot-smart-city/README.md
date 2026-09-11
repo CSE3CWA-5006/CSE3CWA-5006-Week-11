@@ -110,11 +110,16 @@ http://EC2_PUBLIC_IP/
 
 Open that URL in a browser. This is the deployed Internet website.
 
-Step 6: terminate the temporary EC2 instance:
+Step 6: terminate the temporary EC2 instance. Skipping this step leaves a real
+server running and consuming credits:
 
 ```bash
 ./06_cleanup_iot_ec2.sh terminate
 ```
+
+The script asks you to type `TERMINATE` in capitals to confirm. Full
+instructions, including how to do it with clicks in the AWS Console instead of
+the CLI, are in [How to shut down the instance after the lab](#how-to-shut-down-the-instance-after-the-lab-required).
 
 Only stop instead of terminate if your lecturer explicitly asks you to keep the instance:
 
@@ -154,16 +159,67 @@ http://EC2_PUBLIC_IP/
 
 This lab uses HTTP, not HTTPS, because no domain name or certificate is configured. For production HTTPS you need a domain name plus TLS, for example Amazon CloudFront or an HTTPS load balancer with an AWS Certificate Manager certificate.
 
-## Important cost warning
+## How to shut down the instance after the lab (required)
 
-The AWS deployment creates a real EC2 instance. Even a small teaching instance can consume free-tier credits or create charges if it is left running.
+The lab creates a real EC2 instance. Small teaching instances still consume Free
+Tier credits, or create charges, for every hour they keep running. The lab is not
+finished until that instance is terminated.
 
-After testing the website, you must terminate the temporary EC2 instance unless your lecturer explicitly tells you to keep it.
+Do this after you have taken the screenshots you need for submission.
 
-For the Bash lab scripts, cleanup is:
+### Option A: shut it down from CloudShell
 
 ```bash
+cd ~/CSE3CWA-5006-Week-11/iot-smart-city/scripts
 ./06_cleanup_iot_ec2.sh terminate
+```
+
+The script prints the instance details and then asks for confirmation:
+
+```text
+Type TERMINATE to confirm:
+```
+
+Type `TERMINATE` in capitals and press Enter. Any other answer cancels the
+cleanup. When it finishes you will see:
+
+```text
+Cleanup command sent.
+```
+
+### Option B: shut it down from the AWS Console
+
+Use this if you prefer clicking to typing.
+
+1. Open the AWS Console and make sure the Region selector is `ap-southeast-2` (Sydney).
+2. Go to `EC2` > `Instances`.
+3. Tick the instance named `week11-smart-city-iot`.
+4. Open `Instance state` and choose `Terminate (delete) instance`.
+5. Confirm by clicking `Terminate (delete)`.
+
+### Confirm that the instance is gone
+
+In the Console, the instance state becomes `Terminated` and it disappears from
+the `Running` list.
+
+Or check from CloudShell:
+
+```bash
+cd ~/CSE3CWA-5006-Week-11/iot-smart-city/scripts
+./01_cli_login_check.sh
+```
+
+The instance table should no longer show a `running` Week 11 instance. The
+website URL stops working at this point, which is expected.
+
+### Stop is not the same as terminate
+
+`./06_cleanup_iot_ec2.sh stop` only pauses the instance. The disk and the
+configuration stay behind and can still cost money. Use `stop` only when your
+lecturer explicitly asks you to keep the instance for later inspection:
+
+```bash
+./06_cleanup_iot_ec2.sh stop
 ```
 
 ## Data notice
@@ -332,6 +388,14 @@ This stops or terminates the temporary EC2 instance. For this credit-limited lab
 ```bash
 ./06_cleanup_iot_ec2.sh terminate
 ```
+
+The same result can be reached by hand in the AWS Console with
+`EC2` > `Instances` > select `week11-smart-city-iot` > `Instance state` >
+`Terminate (delete) instance`. See
+[How to shut down the instance after the lab](#how-to-shut-down-the-instance-after-the-lab-required)
+for the step-by-step version, and for how to confirm the instance is really gone.
+`stop` is not the same as `terminate`: it only pauses the instance and can still
+cost money.
 
 ## Detailed AWS CLI deployment notes
 
@@ -555,6 +619,8 @@ aws ec2 describe-instances \
 
 ### Cleanup is unclear
 
+See
+[How to shut down the instance after the lab](#how-to-shut-down-the-instance-after-the-lab-required).
 When in doubt, terminate the temporary lab instance after evidence has been collected:
 
 ```bash
