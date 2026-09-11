@@ -142,6 +142,31 @@ Only stop instead of terminate if your lecturer explicitly asks you to keep the 
 ./06_cleanup_iot_ec2.sh stop
 ```
 
+### Where the real website URL comes from
+
+`EC2_PUBLIC_IP` in this README is only a placeholder. It is not a real address,
+so do not type it into the browser. AWS assigns the public IPv4 address when the
+instance is created, and no repository can know it in advance. Read the real
+address from any of these places, all on the machine you are already using:
+
+| Where | What to look for |
+| --- | --- |
+| Output of `./02_create_iot_ec2.sh` | `Public IP: 203.0.113.10` |
+| Output of `./05_verify_iot_site.sh` | `URL : http://203.0.113.10/` |
+| File `../deployment/aws_iot_instance.env` | `export PUBLIC_IP="203.0.113.10"` |
+| AWS Console | `EC2` > `Instances` > `Public IPv4 address` |
+
+You can print it again at any time with:
+
+```bash
+grep PUBLIC_IP ../deployment/aws_iot_instance.env
+```
+
+One warning: a normal EC2 public IPv4 address can change if the instance is
+stopped and started again. If the old link stops working, get the current
+address with the command above, or simply run `./05_verify_iot_site.sh` again,
+which refreshes the address from AWS before testing.
+
 ### 4. Open and inspect the Ubuntu EC2 configuration
 
 After `02_create_iot_ec2.sh` finishes, you can inspect the instance in the AWS Management Console:
