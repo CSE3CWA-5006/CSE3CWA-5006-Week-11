@@ -19,6 +19,21 @@ The main student task is cloud deployment:
 7. Open the public Internet URL.
 8. Terminate the EC2 instance after testing.
 
+> **Remember to shut the instance down when you finish (required).**
+> This lab creates a real EC2 server, and it keeps consuming credits every hour
+> until you terminate it. Closing the browser, closing CloudShell or signing out
+> does **not** stop it. There are two ways to shut it down. Both are repeated at
+> the end of this file on purpose.
+>
+> - **Option A, in CloudShell:** run `./06_cleanup_iot_ec2.sh terminate` and type
+>   `TERMINATE` in capitals when it asks you to confirm.
+> - **Option B, in the AWS Console:** `EC2` > `Instances` > select the instance
+>   named `week11-smart-city-iot` > `Instance state` >
+>   `Terminate (delete) instance`.
+>
+> Step-by-step details for both:
+> [How to shut down the instance after the lab](#how-to-shut-down-the-instance-after-the-lab-required).
+
 The current verified AWS workflow uses:
 
 - AWS new experience project: `Sunlit Servers`
@@ -641,3 +656,33 @@ Before publishing or teaching this lab, confirm:
 - `scripts/02_create_iot_ec2.sh` uses `t3.micro` and checks Free Tier eligibility
 - all regional AWS resources are created in `ap-southeast-2`
 - the lab ending tells students to terminate the temporary EC2 instance
+
+## Reminder: shut the instance down when you finish (required)
+
+This repeats the reminder at the top of this file on purpose. A forgotten lab
+instance keeps costing credits long after the class is over, and closing the
+browser does not stop it.
+
+**Option A, in CloudShell:**
+
+```bash
+cd ~/CSE3CWA-5006-Week-11/iot-smart-city/scripts
+./06_cleanup_iot_ec2.sh terminate
+```
+
+The script prints the instance details and asks `Type TERMINATE to confirm:`.
+Type `TERMINATE` in capitals and press Enter. Anything else cancels the cleanup.
+
+**Option B, in the AWS Console:**
+
+1. Set the Region selector to `ap-southeast-2` (Sydney).
+2. Open `EC2` > `Instances`.
+3. Select the instance named `week11-smart-city-iot`.
+4. Open `Instance state` and choose `Terminate (delete) instance`.
+5. Confirm with `Terminate (delete)`.
+
+Whichever option you use, check afterwards that the instance state becomes
+`Terminated`. The public website URL stops working at that point, which is
+expected. Full instructions, including how to confirm the instance is gone and
+why `stop` is not the same as `terminate`:
+[How to shut down the instance after the lab](#how-to-shut-down-the-instance-after-the-lab-required).
