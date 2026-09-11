@@ -146,13 +146,26 @@ Only stop instead of terminate if your lecturer explicitly asks you to keep the 
 
 `EC2_PUBLIC_IP` in this README is only a placeholder. It is not a real address,
 so do not type it into the browser. AWS assigns the public IPv4 address when the
-instance is created, and no repository can know it in advance. Read the real
-address from any of these places, all on the machine you are already using:
+instance is created, and no repository can know it in advance.
+
+Three of the scripts print the real address, and they do it at different moments.
+This table tells you which one to trust:
+
+| Printed by | What it prints | Is the website working yet? |
+| --- | --- | --- |
+| `./02_create_iot_ec2.sh` | `Public IP: 203.0.113.10`<br>`Website URL after app installation: http://203.0.113.10/` | **No.** This is only a preview. The instance exists, but the website is installed in step 4, so the address does not answer yet. |
+| `./04_upload_and_install_iot_app.sh` | `Open this URL in a browser:`<br>`http://203.0.113.10/` | **Yes.** This is the first moment the address really works. |
+| `./05_verify_iot_site.sh` | `URL      : http://203.0.113.10/` | **Yes**, and this run also tests the site. |
+
+So the address to use is the one printed by step 4, and re-printed by step 5. If
+you copy the address from step 2 instead, the browser shows a connection error;
+that is expected, not a failure.
+
+The same address is also stored here, so you can read it without scrolling back
+through the output:
 
 | Where | What to look for |
 | --- | --- |
-| Output of `./02_create_iot_ec2.sh` | `Public IP: 203.0.113.10` |
-| Output of `./05_verify_iot_site.sh` | `URL : http://203.0.113.10/` |
 | File `../deployment/aws_iot_instance.env` | `export PUBLIC_IP="203.0.113.10"` |
 | AWS Console | `EC2` > `Instances` > `Public IPv4 address` |
 
