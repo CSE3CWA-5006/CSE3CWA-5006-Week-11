@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Copyright (C) 2026 Dr Shuo Ding <shuoding@outlook.com>
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
 set -Eeuo pipefail
 
@@ -16,9 +17,10 @@ usage() {
 Smart City IoT Network Monitor - Ubuntu runner
 
 Usage:
-  ./run_ubuntu.sh --input /path/to/all.csv
-  ./run_ubuntu.sh --input /path/to/data-directory --reimport
-  PORT=8080 ./run_ubuntu.sh --input /path/to/all.csv
+  ./run_ubuntu.sh
+  ./run_ubuntu.sh --skip-install
+  ./run_ubuntu.sh --input ./dataall --reimport
+  PORT=8080 ./run_ubuntu.sh --skip-install
 
 Options:
   --input PATH       CSV/XLSX file or directory to import.
@@ -30,7 +32,7 @@ Options:
   -h, --help         Show help.
 
 Environment alternatives:
-  IOT_INPUT=/path/to/all.csv IOT_DB=/path/to/iot.sqlite PORT=5177 ./run_ubuntu.sh
+  IOT_INPUT=./dataall IOT_DB=./data/smart_city_iot.sqlite PORT=5177 ./run_ubuntu.sh --reimport
 EOF
 }
 
@@ -163,7 +165,8 @@ import_database_if_needed() {
 
   if [[ -z "$INPUT" ]]; then
     echo "No input data path was provided." >&2
-    echo "Run: ./run_ubuntu.sh --input /path/to/all.csv" >&2
+    echo "The included database is missing. Restore data/smart_city_iot.sqlite or run:" >&2
+    echo "  ./run_ubuntu.sh --input ./dataall --reimport" >&2
     exit 1
   fi
 
@@ -180,11 +183,14 @@ import_database_if_needed() {
 }
 
 install_dependencies
-setup_python_env
 
 if [[ "$INSTALL_ONLY" -eq 1 ]]; then
   echo "Dependencies installed."
   exit 0
+fi
+
+if [[ "$REIMPORT" -eq 1 || ! -f "$DB" ]]; then
+  setup_python_env
 fi
 
 import_database_if_needed

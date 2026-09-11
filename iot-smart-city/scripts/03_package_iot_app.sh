@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright (C) 2026 Dr Shuo Ding <shuoding@outlook.com>
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 set -Eeuo pipefail
 
 # Week 11 Page 4 Lab

@@ -1,4 +1,5 @@
 # Copyright (C) 2026 Dr Shuo Ding <shuoding@outlook.com>
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
 # Internal Windows helper. Use start_site.bat as the user-facing Windows entry point.
 param(
