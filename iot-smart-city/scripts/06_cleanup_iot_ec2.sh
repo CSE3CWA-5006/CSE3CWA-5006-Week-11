@@ -29,7 +29,9 @@ fi
 source "$ENV_FILE"
 
 ACTION="${1:-stop}"
-export AWS_PROFILE="${AWS_PROFILE:-sunlit}"
+if [ -n "${AWS_PROFILE:-}" ]; then
+  export AWS_PROFILE
+fi
 export AWS_DEFAULT_REGION="${REGION:-${AWS_DEFAULT_REGION:-ap-southeast-2}}"
 
 echo "============================================================"

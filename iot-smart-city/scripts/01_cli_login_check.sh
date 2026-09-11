@@ -10,16 +10,22 @@ set -Eeuo pipefail
 # This script does not create, change, stop, or delete any AWS resource.
 # It only checks that the AWS CLI can talk to the selected AWS project.
 
-PROFILE="${AWS_PROFILE:-sunlit}"
+PROFILE="${AWS_PROFILE:-}"
 REGION="${AWS_REGION:-${AWS_DEFAULT_REGION:-ap-southeast-2}}"
 
-export AWS_PROFILE="$PROFILE"
+if [ -n "$PROFILE" ]; then
+  export AWS_PROFILE="$PROFILE"
+fi
 export AWS_DEFAULT_REGION="$REGION"
+AWS_PROFILE_ARGS=()
+if [ -n "$PROFILE" ]; then
+  AWS_PROFILE_ARGS=(--profile "$PROFILE")
+fi
 
 echo "============================================================"
 echo "Smart City IoT AWS Lab - Step 1: AWS CLI login check"
 echo "============================================================"
-echo "Profile: $AWS_PROFILE"
+echo "Profile: ${AWS_PROFILE:-current CloudShell/default CLI session}"
 echo "Region : $AWS_DEFAULT_REGION"
 echo
 
@@ -35,10 +41,12 @@ echo "AWS CLI version:"
 aws --version
 echo
 
-echo "Assumption: the user has already logged in with AWS CLI."
-echo "For this verified lab package, the expected profile is: $PROFILE"
-echo "If the login has expired, renew it with:"
-echo "  aws login --region $REGION --profile $PROFILE"
+echo "Assumption: the user has already opened AWS CloudShell from the AWS Console."
+if [ -n "$PROFILE" ]; then
+  echo "Named profile in use: $PROFILE"
+else
+  echo "No named profile is set. This is normal in AWS CloudShell."
+fi
 echo
 
 echo "Checking who the CLI is logged in as..."
@@ -54,8 +62,8 @@ fi
 echo
 
 echo "Checking the configured Region..."
-CONFIGURED_REGION="$(aws configure get region --profile "$PROFILE" || true)"
-echo "Configured Region for profile '$PROFILE': ${CONFIGURED_REGION:-not set}"
+CONFIGURED_REGION="$(aws configure get region "${AWS_PROFILE_ARGS[@]}" || true)"
+echo "Configured Region: ${CONFIGURED_REGION:-not set}"
 echo "Region used by this script: $AWS_DEFAULT_REGION"
 echo
 
@@ -68,4 +76,4 @@ aws ec2 describe-instances \
 echo
 echo "Step 1 complete."
 echo "If the identity table looked correct, continue with:"
-echo "  AWS_PROFILE=\"sunlit\" OWNER=\"student-12345678\" ./02_create_iot_ec2.sh"
+echo "  OWNER=\"student-12345678\" ./02_create_iot_ec2.sh"

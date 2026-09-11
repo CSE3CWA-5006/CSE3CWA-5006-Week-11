@@ -20,7 +20,7 @@ PAGE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 DEPLOY_DIR="$PAGE_DIR/deployment"
 mkdir -p "$DEPLOY_DIR"
 
-PROFILE="${AWS_PROFILE:-sunlit}"
+PROFILE="${AWS_PROFILE:-}"
 REGION="${AWS_REGION:-${AWS_DEFAULT_REGION:-ap-southeast-2}}"
 PROJECT="${PROJECT:-week11-smart-city-iot}"
 OWNER="${OWNER:-student-id}"
@@ -31,13 +31,15 @@ KEY_FILE="${KEY_FILE:-"$DEPLOY_DIR/${KEY_NAME}.pem"}"
 SSH_CIDR="${SSH_CIDR:-}"
 HTTP_CIDR="${HTTP_CIDR:-0.0.0.0/0}"
 
-export AWS_PROFILE="$PROFILE"
+if [ -n "$PROFILE" ]; then
+  export AWS_PROFILE="$PROFILE"
+fi
 export AWS_DEFAULT_REGION="$REGION"
 
 echo "============================================================"
 echo "Smart City IoT AWS Lab - Step 2: Create EC2 instance"
 echo "============================================================"
-echo "Profile       : $AWS_PROFILE"
+echo "Profile       : ${AWS_PROFILE:-current CloudShell/default CLI session}"
 echo "Region        : $AWS_DEFAULT_REGION"
 echo "Project       : $PROJECT"
 echo "Owner         : $OWNER"
@@ -226,7 +228,6 @@ fi
 
 ENV_FILE="$DEPLOY_DIR/aws_iot_instance.env"
 cat > "$ENV_FILE" <<EOF
-export AWS_PROFILE="$PROFILE"
 export AWS_DEFAULT_REGION="$REGION"
 export REGION="$REGION"
 export PROJECT="$PROJECT"
@@ -237,6 +238,10 @@ export KEY_NAME="$KEY_NAME"
 export KEY_FILE="$KEY_FILE"
 export SSH_USER="ubuntu"
 EOF
+
+if [ -n "$PROFILE" ]; then
+  sed -i "1iexport AWS_PROFILE=\"$PROFILE\"" "$ENV_FILE"
+fi
 
 echo
 echo "EC2 instance is ready."

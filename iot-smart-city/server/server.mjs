@@ -15,7 +15,7 @@ const port = Number(process.env.PORT || 5177);
 
 if (!existsSync(dbPath)) {
   console.error(`SQLite database not found: ${dbPath}`);
-  console.error("Run scripts/import_iot_to_sqlite.py first, or start with .\\run.ps1");
+  console.error("Use the prepared data/smart_city_iot.sqlite database from the GitHub repository, or ask your lecturer before rebuilding the database.");
   process.exit(1);
 }
 

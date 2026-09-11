@@ -10,18 +10,19 @@ This is the Week 11 Smart City IoT teaching project for CSE3CWA/CSE5CWA. It is a
 
 The main student task is cloud deployment:
 
-1. Sign in to AWS CLI.
-2. `git clone` this repository.
-3. Run the Page 4 / Lab 3 Bash scripts.
-4. Create one temporary Ubuntu EC2 instance.
-5. Upload and run the IoT website on that EC2 instance.
-6. Open the public Internet URL.
-7. Terminate the EC2 instance after testing.
+1. Sign in to the AWS Console with GitHub.
+2. Open AWS CloudShell from the AWS Console.
+3. `git clone` this repository in CloudShell.
+4. Run the Page 4 / Lab 3 Bash scripts.
+5. Create one temporary Ubuntu EC2 instance.
+6. Upload and run the IoT website on that EC2 instance.
+7. Open the public Internet URL.
+8. Terminate the EC2 instance after testing.
 
 The current verified AWS workflow uses:
 
 - AWS new experience project: `Sunlit Servers`
-- AWS CLI profile: `sunlit`
+- AWS CLI environment: AWS CloudShell using the current Console session
 - Selected AWS Region: `ap-southeast-2`
 - EC2 instance type: `t3.micro`
 - Runtime: Ubuntu 24.04, Node.js 24, SQLite, Nginx
@@ -31,7 +32,9 @@ This lab intentionally uses plain HTTP on port 80 to keep the beginner CLI deplo
 
 ## Student cloud deployment quick start
 
-This is the primary Week 11 lab path. Start only after you have opened a working Ubuntu EC2 CLI or another Ubuntu/Linux shell with AWS CLI v2, Git, SSH and SCP available. The shell is where you type the commands; the website itself is deployed to a separate Ubuntu EC2 instance on AWS and opened through a public Internet URL.
+This is the primary Week 11 lab path. Students do all commands online in AWS CloudShell. CloudShell is opened from the AWS Console after the GitHub sign-in session is already active.
+
+The CloudShell terminal is where you type the commands. The website itself is deployed to a separate Ubuntu EC2 instance on AWS and opened through a public Internet URL.
 
 Quick environment check:
 
@@ -43,23 +46,16 @@ ssh -V
 scp -V || true
 ```
 
-### 1. Sign in to AWS CLI
+### 1. Open AWS CloudShell and check CLI access
 
 ```bash
 aws --version
-aws configure set region ap-southeast-2 --profile sunlit
-aws login --region ap-southeast-2 --profile sunlit
-aws sts get-caller-identity --profile sunlit
-aws freetier get-account-plan-state --region ap-southeast-2 --profile sunlit
+aws configure set region ap-southeast-2
+aws sts get-caller-identity
+aws freetier get-account-plan-state --region ap-southeast-2
 ```
 
-If your Ubuntu EC2 CLI has no browser, use the remote login form:
-
-```bash
-aws login --remote --region ap-southeast-2 --profile sunlit
-```
-
-AWS prints a sign-in URL and code. Open the URL in your browser, continue with the GitHub session, choose **Add session** when AWS asks you to create or choose a CLI session, and then return to the Ubuntu CLI after the command succeeds.
+CloudShell uses the current AWS Console session.
 
 ### 2. Clone the repository
 
@@ -80,7 +76,7 @@ Step 1: check AWS CLI login:
 Step 2: create one Ubuntu EC2 instance:
 
 ```bash
-AWS_PROFILE=sunlit OWNER="student-12345678" ./02_create_iot_ec2.sh
+OWNER="student-12345678" ./02_create_iot_ec2.sh
 ```
 
 Step 3: package the cloned IoT app:
@@ -119,6 +115,7 @@ Only stop instead of terminate if your lecturer explicitly asks you to keep the 
 
 ```bash
 ./06_cleanup_iot_ec2.sh stop
+```
 ```
 
 ### 4. Open and inspect the Ubuntu EC2 configuration
@@ -208,9 +205,6 @@ iot-smart-city/
 │   └── 06_cleanup_iot_ec2.sh
 ├── server/
 │   └── server.mjs                  # Node.js server and API
-├── run_ubuntu.sh                   # optional Ubuntu preview/runtime helper
-├── run.ps1                         # optional local helper, not used by the cloud lab
-├── start_site.bat                  # optional local preview entry point
 ├── package.json
 ├── LICENSE
 └── README.md
@@ -316,49 +310,6 @@ This stops or terminates the temporary EC2 instance. For this credit-limited lab
 ./06_cleanup_iot_ec2.sh terminate
 ```
 
-## Optional Ubuntu preview helper
-
-`run_ubuntu.sh` is not the main Week 11 cloud deployment lab. The main lab deploys to a separate AWS EC2 instance and uses `scripts/01-06`.
-
-Use `run_ubuntu.sh` only if your lecturer asks you to preview the website in an Ubuntu shell before deploying, or if you want to understand the same Node.js + SQLite runtime used on the EC2 server.
-
-From the `iot-smart-city` folder:
-
-```bash
-chmod +x run_ubuntu.sh
-./run_ubuntu.sh --skip-install
-```
-
-Then open:
-
-```text
-http://localhost:5177
-```
-
-If dependencies are not installed yet, run without `--skip-install`:
-
-```bash
-chmod +x run_ubuntu.sh
-./run_ubuntu.sh
-```
-
-The Ubuntu runner installs or checks:
-
-- Node.js 24, required for Node's built-in `node:sqlite`
-- Python 3 and a virtual environment, only needed if you rebuild/import data
-- `pandas` and `openpyxl`, only needed if you rebuild/import data
-- SQLite command-line tools
-
-Useful Ubuntu options:
-
-```bash
-./run_ubuntu.sh --port 8080
-./run_ubuntu.sh --reimport --input ./dataall
-IOT_DB=./data/smart_city_iot.sqlite PORT=5177 ./run_ubuntu.sh --skip-install
-```
-
-Because the teaching SQLite database is already included, beginners should start with the existing database and avoid `--reimport` unless the lecturer asks for it.
-
 ## Detailed AWS CLI deployment notes
 
 Use this when the lab asks you to deploy the IoT website to AWS.
@@ -379,21 +330,20 @@ For the verified Week 11 project, the selected Region is:
 ap-southeast-2
 ```
 
-Confirm AWS CLI login:
+Open AWS CloudShell from the AWS Console and confirm CLI access:
 
 ```bash
 aws --version
-aws configure set region ap-southeast-2 --profile sunlit
-aws login --region ap-southeast-2 --profile sunlit
-aws sts get-caller-identity --profile sunlit
-aws freetier get-account-plan-state --region ap-southeast-2 --profile sunlit
+aws configure set region ap-southeast-2
+aws sts get-caller-identity
+aws freetier get-account-plan-state --region ap-southeast-2
 ```
 
-If the Ubuntu EC2 CLI has no browser, use `aws login --remote --region ap-southeast-2 --profile sunlit`. AWS prints a sign-in URL and code. Open the URL in your browser, continue with GitHub, choose **Add session**, and return to the Ubuntu CLI after login succeeds.
+CloudShell uses the current Console session for the student lab.
 
 ### Bash step-by-step path
 
-Use this path in an Ubuntu/Linux shell when following Page 4 / Lab 3 step by step.
+Use this path in AWS CloudShell when following Page 4 / Lab 3 step by step.
 
 Clone the repository and enter the scripts folder:
 
@@ -412,7 +362,7 @@ Step 1: check AWS CLI login:
 Step 2: create one EC2 instance:
 
 ```bash
-AWS_PROFILE=sunlit OWNER="student-12345678" ./02_create_iot_ec2.sh
+OWNER="student-12345678" ./02_create_iot_ec2.sh
 ```
 
 This script:
@@ -459,7 +409,7 @@ This script:
 - extracts the app to `/opt/smart-city-iot`
 - creates `smart-city-iot.service`
 - configures Nginx as the public HTTP reverse proxy
-- checks both the local backend and public Nginx entry point
+- checks both the EC2-internal backend and public Nginx entry point
 
 Step 5: verify the public website:
 
@@ -521,16 +471,16 @@ For a production or fully offline teaching package, bundle these dependencies lo
 
 ### `aws sts get-caller-identity` fails
 
-Run:
+In CloudShell, first confirm that the current Console session is still active:
 
 ```bash
-aws login --region ap-southeast-2 --profile sunlit
+aws sts get-caller-identity
 ```
 
-Then retry:
+Then retry the lab script:
 
 ```bash
-aws sts get-caller-identity --profile sunlit
+./01_cli_login_check.sh
 ```
 
 ### `t3.micro is not Free Tier eligible`
