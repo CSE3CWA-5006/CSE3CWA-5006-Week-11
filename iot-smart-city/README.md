@@ -36,6 +36,11 @@ This is the primary Week 11 lab path. Students do all commands online in AWS Clo
 
 The CloudShell terminal is where you type the commands. The website itself is deployed to a separate Ubuntu EC2 instance on AWS and opened through a public Internet URL.
 
+Everything in this lab runs inside AWS CloudShell. You do not install the AWS CLI
+on your own computer, you do not create a named CLI profile such as `sunlit`, and
+you never paste access keys. CloudShell is already signed in through the Console
+session, so `aws sts get-caller-identity` works as soon as the terminal opens.
+
 Quick environment check:
 
 ```bash
@@ -248,8 +253,9 @@ The following section explains what each student cloud deployment script does. I
 
 This read-only script confirms:
 
-- AWS CLI is installed
-- profile `sunlit` is signed in
+- AWS CLI is installed (CloudShell already includes it)
+- the current CloudShell / Console session is signed in, with no named profile
+  and no pasted access keys
 - selected Region is `ap-southeast-2`
 - the CLI can call AWS STS
 - existing Week 11 EC2 instances can be listed
@@ -564,7 +570,8 @@ Before publishing or teaching this lab, confirm:
 - `data/smart_city_iot.sqlite` exists
 - no `data/*.pid` or `data/*.url` files are committed
 - no `scripts/__pycache__/` files are committed
-- `scripts/01_cli_login_check.sh` uses profile `sunlit`, not an access-key paste workflow
+- `scripts/01_cli_login_check.sh` relies on the CloudShell Console session, with no
+  named profile and no access-key paste workflow
 - `scripts/02_create_iot_ec2.sh` uses `t3.micro` and checks Free Tier eligibility
 - all regional AWS resources are created in `ap-southeast-2`
 - the lab ending tells students to terminate the temporary EC2 instance
