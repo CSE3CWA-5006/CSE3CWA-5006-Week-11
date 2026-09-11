@@ -31,7 +31,17 @@ This lab intentionally uses plain HTTP on port 80 to keep the beginner CLI deplo
 
 ## Student cloud deployment quick start
 
-This is the primary Week 11 lab path. It assumes you are using an Ubuntu/Linux shell with AWS CLI available. That shell may be Ubuntu on your computer, WSL Ubuntu, or another Linux terminal prepared by the class. The website itself is deployed to an Ubuntu EC2 instance on AWS and opened through a public Internet URL.
+This is the primary Week 11 lab path. Start only after you have opened a working Ubuntu EC2 CLI or another Ubuntu/Linux shell with AWS CLI v2, Git, SSH and SCP available. The shell is where you type the commands; the website itself is deployed to a separate Ubuntu EC2 instance on AWS and opened through a public Internet URL.
+
+Quick environment check:
+
+```bash
+bash --version
+aws --version
+git --version
+ssh -V
+scp -V || true
+```
 
 ### 1. Sign in to AWS CLI
 
@@ -43,7 +53,13 @@ aws sts get-caller-identity --profile sunlit
 aws freetier get-account-plan-state --region ap-southeast-2 --profile sunlit
 ```
 
-During `aws login`, AWS opens a browser sign-in flow. If you are already signed in with GitHub, continue with that GitHub session and use **Add session** when AWS asks you to create or choose a CLI session.
+If your Ubuntu EC2 CLI has no browser, use the remote login form:
+
+```bash
+aws login --remote --region ap-southeast-2 --profile sunlit
+```
+
+AWS prints a sign-in URL and code. Open the URL in your browser, continue with the GitHub session, choose **Add session** when AWS asks you to create or choose a CLI session, and then return to the Ubuntu CLI after the command succeeds.
 
 ### 2. Clone the repository
 
@@ -373,7 +389,7 @@ aws sts get-caller-identity --profile sunlit
 aws freetier get-account-plan-state --region ap-southeast-2 --profile sunlit
 ```
 
-During `aws login`, AWS opens a browser sign-in flow. If you are already signed in with GitHub, continue with that GitHub session and use **Add session** when AWS asks you to create or choose a CLI session.
+If the Ubuntu EC2 CLI has no browser, use `aws login --remote --region ap-southeast-2 --profile sunlit`. AWS prints a sign-in URL and code. Open the URL in your browser, continue with GitHub, choose **Add session**, and return to the Ubuntu CLI after login succeeds.
 
 ### Bash step-by-step path
 
