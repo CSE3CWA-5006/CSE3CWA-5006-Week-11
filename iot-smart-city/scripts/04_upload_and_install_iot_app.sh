@@ -75,7 +75,7 @@ if [ ! -f "$KEY_FILE" ]; then
   echo
   echo "Set KEY_FILE to the local path of your .pem file."
   echo "Example:"
-  echo "  KEY_FILE=\"/mnt/e/trycli/verified_cli/deployment/week11-verified-sunlit.pem\" ./04_upload_and_install_iot_app.sh"
+  echo "  KEY_FILE=\"../deployment/week11-iot-student-12345678.pem\" ./04_upload_and_install_iot_app.sh"
   exit 1
 fi
 

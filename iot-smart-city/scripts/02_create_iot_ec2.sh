@@ -25,7 +25,9 @@ REGION="${AWS_REGION:-${AWS_DEFAULT_REGION:-ap-southeast-2}}"
 PROJECT="${PROJECT:-week11-smart-city-iot}"
 OWNER="${OWNER:-student-id}"
 INSTANCE_TYPE="${INSTANCE_TYPE:-t3.micro}"
-KEY_NAME="${KEY_NAME:-}"
+SAFE_OWNER="${OWNER//[^A-Za-z0-9-]/-}"
+KEY_NAME="${KEY_NAME:-week11-iot-${SAFE_OWNER}}"
+KEY_FILE="${KEY_FILE:-"$DEPLOY_DIR/${KEY_NAME}.pem"}"
 SSH_CIDR="${SSH_CIDR:-}"
 HTTP_CIDR="${HTTP_CIDR:-0.0.0.0/0}"
 
@@ -40,19 +42,9 @@ echo "Region        : $AWS_DEFAULT_REGION"
 echo "Project       : $PROJECT"
 echo "Owner         : $OWNER"
 echo "Instance type : $INSTANCE_TYPE"
-echo "Key pair name : ${KEY_NAME:-not set}"
+echo "Key pair name : $KEY_NAME"
+echo "Key file      : $KEY_FILE"
 echo
-
-if [ -z "$KEY_NAME" ]; then
-  echo "ERROR: KEY_NAME is required."
-  echo
-  echo "KEY_NAME must be the EC2 key pair name stored in AWS."
-  echo "It is not the local .pem file path."
-  echo
-  echo "Example:"
-  echo "  KEY_NAME=\"week11-key\" OWNER=\"12345678\" ./02_create_iot_ec2.sh"
-  exit 1
-fi
 
 echo "Checking AWS identity before creating anything..."
 aws sts get-caller-identity --output table
@@ -76,7 +68,27 @@ fi
 echo "$INSTANCE_TYPE is Free Tier eligible."
 echo
 
-echo "Checking that the EC2 key pair exists in this Region..."
+echo "Ensuring the EC2 key pair exists in this Region..."
+if aws ec2 describe-key-pairs --key-names "$KEY_NAME" >/dev/null 2>&1; then
+  echo "Reusing existing AWS key pair: $KEY_NAME"
+  if [ ! -f "$KEY_FILE" ]; then
+    echo "ERROR: AWS key pair '$KEY_NAME' already exists, but the matching local PEM file was not found:"
+    echo "  $KEY_FILE"
+    echo "Use a KEY_NAME whose PEM file you already have, or ask the lecturer before deleting/recreating the key pair."
+    exit 1
+  fi
+else
+  echo "Creating new AWS key pair: $KEY_NAME"
+  aws ec2 create-key-pair \
+    --key-name "$KEY_NAME" \
+    --key-type rsa \
+    --key-format pem \
+    --query 'KeyMaterial' \
+    --output text > "$KEY_FILE"
+  chmod 400 "$KEY_FILE"
+  echo "Saved private key file:"
+  echo "  $KEY_FILE"
+fi
 aws ec2 describe-key-pairs \
   --key-names "$KEY_NAME" \
   --query "KeyPairs[*].[KeyName,KeyType,KeyFingerprint]" \
@@ -222,6 +234,7 @@ export OWNER="$OWNER"
 export INSTANCE_ID="$INSTANCE_ID"
 export PUBLIC_IP="$PUBLIC_IP"
 export KEY_NAME="$KEY_NAME"
+export KEY_FILE="$KEY_FILE"
 export SSH_USER="ubuntu"
 EOF
 

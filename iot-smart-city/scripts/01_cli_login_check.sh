@@ -68,4 +68,4 @@ aws ec2 describe-instances \
 echo
 echo "Step 1 complete."
 echo "If the identity table looked correct, continue with:"
-echo "  AWS_PROFILE=\"sunlit\" KEY_NAME=\"week11-verified-sunlit\" OWNER=\"student-12345678\" ./02_create_iot_ec2.sh"
+echo "  AWS_PROFILE=\"sunlit\" OWNER=\"student-12345678\" ./02_create_iot_ec2.sh"

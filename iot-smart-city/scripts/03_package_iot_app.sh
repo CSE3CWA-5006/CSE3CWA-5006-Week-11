@@ -25,11 +25,10 @@ set -Eeuo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PAGE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-WEEK11_DIR="$(cd "$PAGE_DIR/.." && pwd)"
 DEPLOY_DIR="$PAGE_DIR/deployment"
 mkdir -p "$DEPLOY_DIR"
 
-IOT_SOURCE_DIR="${IOT_SOURCE_DIR:-"$WEEK11_DIR/IoT"}"
+IOT_SOURCE_DIR="${IOT_SOURCE_DIR:-"$PAGE_DIR"}"
 PACKAGE_PATH="$DEPLOY_DIR/iot_app_package.tar.gz"
 
 echo "============================================================"
@@ -44,7 +43,7 @@ if [ ! -d "$IOT_SOURCE_DIR" ]; then
   echo
   echo "Set IOT_SOURCE_DIR manually if your project is somewhere else."
   echo "Example:"
-  echo "  IOT_SOURCE_DIR=\"/mnt/e/trycli/IoT\" ./03_package_iot_app.sh"
+  echo "  IOT_SOURCE_DIR=\"/path/to/iot-smart-city\" ./03_package_iot_app.sh"
   exit 1
 fi
 
@@ -86,4 +85,4 @@ echo "Package created:"
 ls -lh "$PACKAGE_PATH"
 echo
 echo "Next step:"
-echo "  KEY_FILE=\"/mnt/e/trycli/verified_cli/deployment/week11-verified-sunlit.pem\" ./04_upload_and_install_iot_app.sh"
+echo "  ./04_upload_and_install_iot_app.sh"
