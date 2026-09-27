@@ -79,12 +79,23 @@ function getBootstrap() {
     )
     .all();
 
+  const dataRange = db
+    .prepare("SELECT MIN(timestamp_ms) AS lo, MAX(timestamp_ms) AS hi FROM readings")
+    .get();
+  const minTimestamp = Number(dataRange?.lo ?? metadata.min_timestamp_ms ?? 0);
+  const maxTimestamp = Number(dataRange?.hi ?? metadata.max_timestamp_ms ?? 0);
+
   return {
     metadata,
     sensors,
     sensorTypes,
-    minTimestamp: Number(metadata.min_timestamp_ms || 0),
-    maxTimestamp: Number(metadata.max_timestamp_ms || 0),
+    // The replay window has to come from the rows that are actually stored.
+    // The metadata table describes the larger source dataset, so its
+    // timestamps can sit well outside this anonymised subset. Trusting it made
+    // the replay open about 39 days before the first stored reading, and the
+    // dashboard then showed no records until the replay caught up.
+    minTimestamp,
+    maxTimestamp,
     map: {
       width: Number(metadata.map_width || 1200),
       height: Number(metadata.map_height || 760),
