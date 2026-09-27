@@ -1,4 +1,7 @@
+# The prepared teaching database is part of the deliverable: cloud-init clones
+# this repository and refuses to continue if the file is missing.
 data/*.sqlite
+!data/smart_city_iot.sqlite
 data/*.sqlite-*
 data/*.pid
 data/*.url
